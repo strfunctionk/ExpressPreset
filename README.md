@@ -1,5 +1,4 @@
 Node.js 설치
-
 ---
 
 [공식 사이트](https://nodejs.org/)에서 다운로드  
@@ -7,7 +6,6 @@ Node.js 설치
 `node -v npm -v`
 
 프로젝트 초기화
-
 ---
 
 ```bash
@@ -15,7 +13,6 @@ npm init
 ```
 
 Express 설치
-
 ---
 
 ```bash
@@ -23,7 +20,6 @@ npm install express
 ```
 
 nodemon 설치 $\small{\color{#aaaaaa}(선택)}$
-
 ---
 
 ```bash
@@ -31,7 +27,6 @@ npm install --save-dev nodemon
 ```
 
 모듈 방식 사용
-
 ---
 
 ```json
@@ -40,7 +35,6 @@ npm install --save-dev nodemon
 
 .vscode 폴더에
 settings.json
-
 ---
 
 ```json
@@ -50,7 +44,6 @@ settings.json
 ```
 
 최종 package.json
-
 ---
 
 ```json
@@ -78,7 +71,6 @@ settings.json
 
 src 폴더에
 index.js 추가
-
 ---
 
 ```js
@@ -98,7 +90,6 @@ app.listen(port, () => {
 ```
 
 프로젝트 구조
-
 ---
 
 ```markdown
