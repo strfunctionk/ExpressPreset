@@ -1,7 +1,9 @@
 SOA 패턴
 ---
+Controller - dto - Service - dto - Repository 구조
 
 프로젝트 구조
+---
 ```markdown
 📦 project
 ┣ 📂.node_module
