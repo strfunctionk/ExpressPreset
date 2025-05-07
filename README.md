@@ -102,7 +102,8 @@ app.listen(port, () => {
 ---
 
 ```markdown
-📦 express_preset
+📦 project
+┣ 📂.node_module
 ┣ 📂.vscode
 ┃ ┗ 📜settings.json
 ┣ 📂src
