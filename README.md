@@ -1,112 +1,132 @@
-Node.js 설치
-
----
-
-[공식 사이트](https://nodejs.org/)에서 다운로드  
- 설치 후 확인
-`node -v npm -v`
-
-프로젝트 초기화
+cors 설치
 
 ---
 
 ```bash
-npm init
+npm install cors
 ```
 
-Express 설치
+http-status-codes 설치
 
 ---
 
 ```bash
-npm install express
+npm install http-status-codes
 ```
 
-nodemon 설치 $\small{\color{#aaaaaa}(선택)}$
+dotenv 설치
 
 ---
 
 ```bash
-npm install --save-dev nodemon
+npm install dotenv
 ```
 
-모듈 방식 사용
-
----
-
-```json
-"type": "module"
-```
-
-.vscode 폴더에
-settings.json
-
----
-
-```json
-{
-  "javascript.preferences.importModuleSpecifierEnding": "js"
-}
-```
-
-최종 package.json
-
----
-
-```json
-{
-  "name": "project",
-  "type": "module",
-  "version": "1.0.0",
-  "description": "project",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js",
-    "dev": "nodemon --exec node src/index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^5.1.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
-  }
-}
-```
-
-src 폴더에
-index.js 추가
-
----
-
-```js
-//index.js
-import express from "express";
-
-const app = express();
-const port = 3000;
-
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.listen(port, () => {
-  console.log(`Server: http://localhost:${port}`);
-});
-```
-
-폴더 구조
+.gitignore 설정
 
 ---
 
 ```markdown
-📦 express_preset
+node_modules/
+.env
+.env.*
+```
+
+환경변수 설정
+
+---
+
+``` markdown
+PORT=3000
+```
+
+.error 설정
+``` js
+export class 에러이름 extends Error {
+    errorCode = "에러코드";
+
+    constructor(reason, data) {
+        super(reason);
+        this.reason = reason;
+        this.data = data;
+    }
+}
+```
+---
+
+index.js 설정
+1. 모듈 불러오기
+    ``` js
+    import express from 'express'
+    import dotenv from 'dotenv'
+    import cors from 'cors'
+
+    dotenv.config();
+    ```
+2. 포트 env로 설정
+    ``` js
+    const port = process.env.PORT
+    ```
+3. cors 설정정
+    ``` js
+    const corsOptions = {
+      origin: '*',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      preflightContinue: false,
+      optionsSuccessStatus: 204
+    }
+
+    app.use(cors(corsOptions));
+    ```
+4. 정적 파일 설정
+    ```js
+    app.use(express.static('public'));
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    ```
+5. 에러처리
+    ``` js
+    app.use((req, res, next) => {
+        res.success = (success) => {
+            return res.json({ resultType: "SUCCESS", error: null, success });
+        };
+        res.error = ({ errorCode = "unknown", reason = null, data = null }) => {
+            return res.json({
+                resultType: "FAIL",
+                error: { errorCode, reason, data },
+                success: null,
+            });
+        };
+        next();
+    });
+    ```
+    (err, req, res, next)는 항상 마지막에 사용합니다.
+    ``` js
+    app.use((err, req, res, next) => {
+        if (res.headersSent) {
+            return next(err);
+        }
+
+        res.status(err.statusCode || 500).error({
+            errorCode: err.errorCode || "unknown",
+            reason: err.reason || err.message || null,
+            data: err.data || null,
+        });
+    });
+    ```
+---
+
+```markdown
+📦 project
+┣ 📂.node_module
 ┣ 📂.vscode
 ┃ ┗ 📜settings.json
+┃ 📂public
 ┣ 📂src
-┃ ┗ 📜index.js
+┃ ┣📜error.js
+┃ ┗📜index.js
+┣ 📜.env
+┣ 📜.gitignore
 ┣ 📜package-lock.json
 ┣ 📜package.json
 ┗ 📜README.md
