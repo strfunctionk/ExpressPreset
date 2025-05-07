@@ -1,5 +1,4 @@
 cors 설치
-
 ---
 
 ```bash
@@ -7,7 +6,6 @@ npm install cors
 ```
 
 http-status-codes 설치
-
 ---
 
 ```bash
@@ -15,7 +13,6 @@ npm install http-status-codes
 ```
 
 dotenv 설치
-
 ---
 
 ```bash
@@ -23,7 +20,6 @@ npm install dotenv
 ```
 
 .gitignore 설정
-
 ---
 
 ```markdown
@@ -33,7 +29,6 @@ node_modules/
 ```
 
 환경변수 설정
-
 ---
 
 ``` markdown
@@ -41,6 +36,7 @@ PORT=3000
 ```
 
 .error 설정
+---
 ``` js
 export class 에러이름 extends Error {
     errorCode = "에러코드";
@@ -52,9 +48,9 @@ export class 에러이름 extends Error {
     }
 }
 ```
----
 
 index.js 설정
+---
 1. 모듈 불러오기
     ``` js
     import express from 'express'
@@ -115,7 +111,6 @@ index.js 설정
     });
     ```
 프로젝트 구조
-
 ---
 
 ```markdown
