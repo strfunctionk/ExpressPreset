@@ -43,7 +43,7 @@ prisma에서 output 설정이 되어있으면, 무한 반복이 될 수 있음
 output = "../src/generated/prisma"
 ```
 
-db.congig.js 추가
+db.config.js 추가
 
 ```js
 import { PrismaClient } from "@prisma/client";
