@@ -1,6 +1,8 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import cors from 'cors'
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import swaggerAutogen from "swagger-autogen";
+import swaggerUiExpress from "swagger-ui-express";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 
 dotenv.config();
@@ -33,6 +35,42 @@ app.use((req, res, next) => {
     };
     next();
 });
+
+app.use(
+    "/docs",
+    swaggerUiExpress.serve,
+    swaggerUiExpress.setup(
+      {},
+      {
+        swaggerOptions: {
+          url: "/openapi.json",
+        },
+      }
+    )
+  );
+  
+  app.get("/openapi.json", async (req, res, next) => {
+    // #swagger.ignore = true
+    const options = {
+      openapi: "3.0.0",
+      disableLogs: true,
+      writeOutputFile: false,
+    };
+    const outputFile = "/dev/null";
+    const routes = ["./src/index.js"];
+    const protocol = req.protocol;
+    const host = req.get("host");  
+    const doc = {
+      info: {
+        title: "제목",
+        description: "설명",
+      },
+      host: `${protocol}://${host}`,
+    };
+  
+    const result = await swaggerAutogen(options)(outputFile, routes, doc);
+    res.json(result ? result.data : null);
+  });
 
 app.get('/', (req, res) => {
   res.send('Hello World!')

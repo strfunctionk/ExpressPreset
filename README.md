@@ -1,173 +1,152 @@
-## Prisma 유저 테이블 추가
+## swagger 문서 설치
 
-```js
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(255)
-  username  String   @unique @db.VarChar(255)
-  email     String   @unique(map: "email") @db.VarChar(255)
-  password  String   @db.VarChar(255)
-  avatar    String?  @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(6)
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.DateTime(6)
-
-  @@map("user")
-}
+```bash
+npm add swagger-autogen swagger-ui-express
 ```
 
-## Prisma 설명
-
-```js
-model RelationA {
-  ...생략
-}
-
-model RelationB {
-  id        Int       @id @default(autoincrement())
-  ...생략
-}
-
-model Multi {
-  ...생략
-}
-
-model 모델명 {
-  // primary key
-  id         Int       @id @default(autoincrement())
-  //optional
-  option     Int?
-  // relation scalar
-  relationA  RelationA
-  // multifield
-  multis     Multi[]
-  // relation
-  relationB  RelationB @relation(fields: [relationId], references: [id])
-  relationId Int       @map("relation_id")
-  // updatedAt
-  updatedAt  DateTime  @updatedAt
-
-  // index
-  @@index([fkeyId], map: "fkey_id")
-  // map
-  @@map("model")
-}
-```
-
-## User 회원가입 예시
-
-index
+## swagger 문서 설정정
 
 ```js
 //index.js
-import { handleUserSignUp } from "./controllers/user.controller.js";
+import swaggerAutogen from "swagger-autogen";
+import swaggerUiExpress from "swagger-ui-express";
 
-app.post("/v1/api/signup", handleUserSignUp);
-```
+app.use(
+  "/docs",
+  swaggerUiExpress.serve,
+  swaggerUiExpress.setup(
+    {},
+    {
+      swaggerOptions: {
+        url: "/openapi.json",
+      },
+    }
+  )
+);
 
-error
-
-```js
-// error.js
-export class DuplicateUserEmailError extends Error {
-  errorCode = "001";
-
-  constructor(reason, data) {
-    super(reason);
-    this.reason = reason;
-    this.data = data;
-  }
-}
-```
-
-controller
-
-```js
-import { StatusCodes } from "http-status-codes";
-import { bodyToUser } from "../dtos/user.dto.js";
-import { userSignUp } from "../services/user.service.js";
-
-export const handleUserSignUp = async (req, res, next) => {
-  try {
-    console.log("회원가입을 요청했습니다!");
-    console.log("body:", req.body); // 값이 잘 들어오나 확인하기 위한 테스트용
-
-    const user = await userSignUp(bodyToUser(req.body));
-    res.status(StatusCodes.OK).success(user);
-  } catch (err) {
-    return next(err);
-  }
-};
-```
-
-dto
-
-```js
-export const bodyToUser = (body) => {
-  return {
-    email: body.email,
-    name: body.name,
-    username: body.username,
-    password: body.password,
-    avator: body.avatar || null,
+app.get("/openapi.json", async (req, res, next) => {
+  // #swagger.ignore = true
+  const options = {
+    openapi: "3.0.0",
+    disableLogs: true,
+    writeOutputFile: false,
   };
-};
-export const responseFromUser = ({ user }) => {
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    username: user.username,
-    password: user.password,
-    avator: user.avatar,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+  const outputFile = "/dev/null";
+  const routes = ["./src/index.js"];
+  const protocol = req.protocol;
+  const host = req.get("host");
+  const doc = {
+    info: {
+      title: "제목",
+      description: "설명",
+    },
+    host: `${protocol}://${host}`,
   };
-};
+
+  const result = await swaggerAutogen(options)(outputFile, routes, doc);
+  res.json(result ? result.data : null);
+});
 ```
 
-service
+## swagger 문서 작성
 
 ```js
-import { responseFromUser } from "../dtos/user.dto.js";
-import { addUser, getUser } from "../repositories/user.repository.js";
-import { DuplicateUserEmailError } from "../errors.js";
+#swagger.tags = ['User']
+#swagger.summary = '회원가입'
+#swagger.description = '회원가입을 위한 API입니다. 이메일, 이름, 아이디, 비밀번호를 포함해 요청해야 합니다. 선택적으로 avatar URL을 포함할 수 있습니다.'
 
-export const userSignUp = async (data) => {
-  const UserId = await addUser({
-    email: data.email,
-    name: data.name,
-    username: data.username,
-    password: data.password,
-    avatar: data.avatar || null,
-  });
+    #swagger.requestBody = {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              email: { type: 'string', example: 'email@email.com' },
+              name: { type: 'string', example: '이름' },
+              username: { type: 'string', example: '아이디' },
+              password: { type: 'string', example: '비밀번호' },
+              avatar: { type: 'string', example: 'https://example.com/avatar.png' }
+            },
+            required: ['email', 'name', 'username', 'password']
+          }
+        }
+      }
+    }
 
-  if (UserId === null) {
-    throw new DuplicateUserEmailError("이미 존재하는 이메일입니다.", data);
-  }
+    #swagger.responses[200] = {
+      description: '회원가입 성공',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              resultType: { type: 'string', example: 'SUCCESS' },
+              error: { type: 'object', example: null },
+              success: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  email: { type: 'string', example: 'email@email.com' },
+                  name: { type: 'string', example: '이름' },
+                  username: { type: 'string', example: '아이디' },
+                  password: { type: 'string', example: '비밀번호' },
+                  avatar: { type: 'string', example: 'https://example.com/avatar.png' },
+                  createdAt: { type: 'string', example: '2023-01-01T00:00:00.000Z' },
+                  updatedAt: { type: 'string', example: '2023-01-01T00:00:00.000Z' }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
 
-  const user = await getUser(UserId);
-  return responseFromUser({
-    user,
-  });
-};
-```
+    #swagger.responses[409] = {
+      description: '이메일 중복',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              resultType: { type: 'string', example: 'FAIL' },
+              error: {
+                type: 'object',
+                properties: {
+                  errorCode: { type: 'string', example: 'duplicate_email' },
+                  reason: { type: 'string', example: '이미 존재하는 이메일입니다.' },
+                  data: { type: 'object', example: null }
+                }
+              },
+              success: { type: 'object', example: null }
+            }
+          }
+        }
+      }
+    }
 
-repository
-
-```js
-import { prisma } from "../db.config.js";
-export const addUser = async (data) => {
-  const user = await prisma.user.findFirst({ where: { email: data.email } });
-  if (user) {
-    return null;
-  }
-  const created = await prisma.user.create({ data: data });
-  return created.id;
-};
-export const getUser = async (userId) => {
-  const user = await prisma.user.findFirstOrThrow({ where: { id: userId } });
-  return user;
-};
+    #swagger.responses[400] = {
+      description: '잘못된 요청',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              resultType: { type: 'string', example: 'FAIL' },
+              error: {
+                type: 'object',
+                properties: {
+                  errorCode: { type: 'string', example: 'invalid_request' },
+                  reason: { type: 'string', example: '요청 데이터가 잘못되었습니다.' },
+                  data: { type: 'object', example: null }
+                }
+              },
+              success: { type: 'object', example: null }
+            }
+          }
+        }
+      }
+    }
 ```
 
 ## 프로젝트 구조
