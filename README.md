@@ -4,7 +4,7 @@
 npm add swagger-autogen swagger-ui-express
 ```
 
-## swagger 문서 설정정
+## swagger 문서 설정
 
 ```js
 //index.js
