@@ -170,9 +170,13 @@ export const getUser = async (userId) => {
 ┃ 📂public
 ┣ 📂src
 ┃ ┣ 📂controllers
+┃ ┃ ┗ 📜user.controller.js
 ┃ ┣ 📂services
+┃ ┃ ┗ 📜user.services.js
 ┃ ┣ 📂repositories
+┃ ┃ ┗ 📜user.repository.js
 ┃ ┣ 📂dtos
+┃ ┃ ┗ 📜user.dto.js
 ┃ ┣📜db.config.js
 ┃ ┣📜error.js
 ┃ ┗📜index.js
