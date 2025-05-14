@@ -1,6 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
+import { handleUserSignUp } from "./controllers/user.controller.js";
 
 dotenv.config();
 
@@ -36,6 +37,8 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
+
+app.post('/v1/api/signup', handleUserSignUp);
 
 app.use((err, req, res, next) => {
     if (res.headersSent) {
