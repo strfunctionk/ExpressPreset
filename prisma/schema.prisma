@@ -19,24 +19,3 @@ model User {
 
   @@map("user")
 }
-
-model 모델명 {
-  // primary key
-  id         Int       @id @default(autoincrement())
-  //optional
-  option     Int?
-  // relation scalar
-  relationA  RelationA
-  // multifield
-  multis     Multi[]
-  // relation
-  relationB  RelationB @relation(fields: [relationId], references: [id])
-  relationId Int       @map("relation_id")
-  // updatedAt
-  updatedAt  DateTime  @updatedAt
-
-  // index
-  @@index([fkeyId], map: "fkey_id")
-  // map
-  @@map("model")
-}
